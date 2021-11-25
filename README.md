@@ -2,7 +2,7 @@
 
 Solutions for [Advent of Code 2021](https://adventofcode.com/).
 
-## execution
+## Execution
 
 Make sure you have Python 3.9 and pip installed, as well as all requirements in
 `requirements.txt` (I recommend using `virtualenv` for this), then run
