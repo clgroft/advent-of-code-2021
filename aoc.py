@@ -4,25 +4,11 @@ import click
 from collections import defaultdict
 import sys
 
-
-def day01(day, lines):
-    depths = [ int(l) for l in lines ]
-
-    num_increased_depths = 0
-    for i in range(1, len(depths)):
-        if depths[i] > depths[i-1]:
-            num_increased_depths += 1
-    print(f"There are {num_increased_depths} increased depths")
-
-    num_increased_windows = 0
-    for i in range(3, len(depths)):
-        if depths[i] > depths[i-3]:
-            num_increased_windows += 1
-    print(f"There are {num_increased_windows} inrceased windows")
+from solutions import day01
 
 
 solutions = defaultdict(lambda : lambda day, lines : print(f"Day {day} not yet implemented"))
-solutions[1] = day01
+solutions[1] = day01.solution
 
 
 @click.command()
