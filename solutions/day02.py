@@ -10,9 +10,7 @@ def solution(day, lines):
 
     print('Part 1:')
 
-    position = 0
-    depth = 0
-
+    position, depth = 0, 0
     for i in instructions:
         if i.direction == 'forward':
             position += i.param
@@ -22,15 +20,11 @@ def solution(day, lines):
             depth -= i.param
         else:
             print(f'Unknown direction {i.direction}')
-
     print(f'Position {position}, depth {depth}, result {position * depth}')
 
     print('Part 2:')
 
-    position = 0
-    depth = 0
-    aim = 0
-
+    position, depth, aim = 0, 0, 0
     for i in instructions:
         if i.direction == 'forward':
             position += i.param
@@ -41,5 +35,4 @@ def solution(day, lines):
             aim -= i.param
         else:
             print(f'Unknown direction {i.direction}')
-
     print(f'Position {position}, depth {depth}, result {position * depth}')
