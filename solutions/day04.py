@@ -1,52 +1,49 @@
 class Board:
     def __init__(self, lines):
-        self.marks = [ [False for j in range(5)] for i in range(5)]
-        self.position_from_number = {}
+        self._marks = [ [False for j in range(5)] for i in range(5)]
+        self._position_from_number = {}
         for i, line in enumerate(lines):
             for j, entry in enumerate(line.split()):
-                self.position_from_number[int(entry)] = [i,j]
-        self.has_won = False
+                self._position_from_number[int(entry)] = [i,j]
+        self._has_won = False
 
 
     def call_number(self, number):
         """Respond to number being called."""
-        if self.has_won:
+        if self._has_won:
             return None
 
-        pos = self.position_from_number.get(number)
+        pos = self._position_from_number.get(number)
         if pos is None:
             return None
         i, j = pos
 
-        self.mark(i,j)
-        if self.is_victory(i,j):
-            self.has_won = True
-            return self.score(number)
+        self._mark(i,j)
+        if self._is_victory(i,j):
+            self._has_won = True
+            return self._score(number)
         else:
             return None
 
 
-    def mark(self, i, j):
-        """Mark number on this board."""
-        self.marks[i][j] = True
+    def _mark(self, i, j):
+        self._marks[i][j] = True
 
 
-    def is_victory(self, i, j):
-        """Check victory condition along row and column of pos."""
-        return all(self.marks[i]) or all(row[j] for row in self.marks)
+    def _is_victory(self, i, j):
+        return all(self._marks[i]) or all(row[j] for row in self._marks)
 
 
-    def score(self, number):
+    def _score(self, number):
         """Return score, i.e., sum of unmarked numbers times called number."""
-        return number * (
-                sum(num for num, pos in self.position_from_number.items()
-                    if not self.is_marked(pos)))
+        return (number
+                * sum(num for num, pos in self._position_from_number.items()
+                    if not self._is_marked(pos)))
 
 
-    def is_marked(self, pos):
-        """Return True if position is marked."""
+    def _is_marked(self, pos):
         i, j = pos
-        return self.marks[i][j]
+        return self._marks[i][j]
 
 
 def solution(day, lines):
