@@ -9,7 +9,6 @@ def solution(day, lines):
     instructions = [ Instruction(l) for l in lines ]
 
     print('Part 1:')
-
     position, depth = 0, 0
     for i in instructions:
         if i.direction == 'forward':
@@ -23,7 +22,6 @@ def solution(day, lines):
     print(f'Position {position}, depth {depth}, result {position * depth}')
 
     print('Part 2:')
-
     position, depth, aim = 0, 0, 0
     for i in instructions:
         if i.direction == 'forward':

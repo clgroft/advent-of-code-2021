@@ -1,5 +1,5 @@
 def gamma_epsilon(inputs):
-    counts = [ [0,0] for c in inputs[0]]
+    counts = [[0,0] for c in inputs[0]]
     for l in inputs:
         for i in range(len(l)):
             counts[i][l[i]] += 1
@@ -26,9 +26,9 @@ def oxygen_generator_rating(inputs):
             counts[val[i]] += 1
 
         if counts[0] > counts[1]:
-            inputs = [ val for val in inputs if val[i] == 0 ]
+            inputs = [val for val in inputs if val[i] == 0]
         else:
-            inputs = [ val for val in inputs if val[i] == 1 ]
+            inputs = [val for val in inputs if val[i] == 1]
 
         if len(inputs) == 1:
             return int(''.join([str(i) for i in inputs[0]]), 2)
@@ -41,16 +41,16 @@ def co2_scrubber_rating(inputs):
             counts[val[i]] += 1
 
         if counts[0] > counts[1]:
-            inputs = [ val for val in inputs if val[i] == 1 ]
+            inputs = [val for val in inputs if val[i] == 1]
         else:
-            inputs = [ val for val in inputs if val[i] == 0 ]
+            inputs = [val for val in inputs if val[i] == 0]
 
         if len(inputs) == 1:
             return int(''.join([str(i) for i in inputs[0]]), 2)
 
 
 def solution(day, lines):
-    lines = [ [ int(c) for c in l.strip() ] for l in lines ]
+    lines = [[int(c) for c in l.strip()] for l in lines]
 
     print('Part 1:')
     gamma, epsilon = gamma_epsilon(lines)
