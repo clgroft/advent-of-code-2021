@@ -11,7 +11,7 @@ class VentLine:
         self.end_x = int(end_pt[0])
         self.end_y = int(end_pt[1])
 
-    def covered_points(self):
+    def covered_points_1(self):
         if self.start_x == self.end_x:
             start_y, end_y = self.start_y, self.end_y
             if start_y > end_y:
@@ -60,7 +60,7 @@ def solution(day, lines):
 
     covered_points = defaultdict(lambda: 0)
     for v in vent_lines:
-        for p in v.covered_points():
+        for p in v.covered_points_1():
             covered_points[p] += 1
     num_crossings = len([v for v in covered_points.values() if v > 1])
     print(f'Part 1: There are {num_crossings} crossings')
