@@ -2,9 +2,12 @@ class Board:
     def __init__(self, lines):
         self._marks = [[False for j in range(5)] for i in range(5)]
         self._position_from_number = {}
+        self._unmarked_numbers = set()
         for i, line in enumerate(lines):
             for j, entry in enumerate(line.split()):
-                self._position_from_number[int(entry)] = [i,j]
+                number = int(entry)
+                self._position_from_number[number] = (i,j)
+                self._unmarked_numbers.add(number)
         self._has_won = False
 
     def call_number(self, number):
@@ -17,24 +20,23 @@ class Board:
             return None
         i, j = pos
 
-        self._mark(i,j)
-        if self._is_victory(i,j):
+        self._mark(i, j, number)
+        if self._is_victory(i, j):
             self._has_won = True
             return self._score(number)
         else:
             return None
 
-    def _mark(self, i, j):
+    def _mark(self, i, j, number):
         self._marks[i][j] = True
+        self._unmarked_numbers.remove(number)
 
     def _is_victory(self, i, j):
         return all(self._marks[i]) or all(row[j] for row in self._marks)
 
     def _score(self, number):
         """Return score, i.e., sum of unmarked numbers times called number."""
-        return (number
-                * sum(num for num, pos in self._position_from_number.items()
-                      if not self._is_marked(pos)))
+        return number * sum(num for num in self._unmarked_numbers)
 
     def _is_marked(self, pos):
         i, j = pos
