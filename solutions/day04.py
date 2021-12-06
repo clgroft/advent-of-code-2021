@@ -11,7 +11,11 @@ class Board:
         self._has_won = False
 
     def call_number(self, number):
-        """Respond to number being called."""
+        """Respond to number being called.
+
+        Output is the final score of the board, but only if the board has
+        won as a result of this specific call.
+        """
         if self._has_won:
             return None
 
@@ -51,12 +55,15 @@ def solution(day, lines):
         boards.append(Board(lines[:5]))
         lines = lines[6:]
 
-    winning_scores = []
+    first_score = None
+    last_score = None
     for number in call_sequence:
         for board in boards:
             score = board.call_number(number)
             if score is not None:
-                winning_scores.append(score)
+                last_score = score
+                if first_score is None:
+                    first_score = score
 
-    print(f'First winning score: {winning_scores[0]}')
-    print(f'Last winning score:  {winning_scores[-1]}')
+    print(f'First winning score: {first_score}')
+    print(f'Last winning score:  {last_score}')
