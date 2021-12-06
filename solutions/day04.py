@@ -36,7 +36,7 @@ class Board:
 
     def _score(self, number):
         """Return score, i.e., sum of unmarked numbers times called number."""
-        return number * sum(num for num in self._unmarked_numbers)
+        return number * sum(self._unmarked_numbers)
 
     def _is_marked(self, pos):
         i, j = pos
