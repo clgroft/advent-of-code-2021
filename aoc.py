@@ -4,7 +4,7 @@ import click
 from collections import defaultdict
 import sys
 
-from solutions import day01, day02, day03, day04, day05
+from solutions import day01, day02, day03, day04, day05, day06
 
 
 solutions = defaultdict(lambda : lambda day, lines : print(f"Day {day} not yet implemented"))
@@ -13,6 +13,7 @@ solutions[2] = day02.solution
 solutions[3] = day03.solution
 solutions[4] = day04.solution
 solutions[5] = day05.solution
+solutions[6] = day06.solution
 
 
 @click.command()
