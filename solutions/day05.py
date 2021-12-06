@@ -12,6 +12,11 @@ class VentLine:
         self.end_y = int(end_pt[1])
 
     def covered_points_1(self):
+        """Return list of (x,y) points covered by line.
+
+        For now, only consider horizontal and vertical lines; ignore
+        diagonals.
+        """
         if self.start_x == self.end_x:
             return self._vertical_line()
         if self.start_y == self.end_y:
@@ -20,6 +25,11 @@ class VentLine:
             return []
 
     def covered_points_2(self):
+        """Return list of (x,y) points covered by line.
+
+        Now allow diagonals; we assume all diagonals are at 45 degrees
+        from horizontal/vertical.
+        """
         if self.start_x == self.end_x:
             return self._vertical_line()
         if self.start_y == self.end_y:
