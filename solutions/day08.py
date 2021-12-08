@@ -30,18 +30,21 @@ class Entry:
         lookups[self._signal_patterns[2]] = 4
         lookups[self._signal_patterns[9]] = 8
 
+        one_set  = set(self._signal_patterns[0])
+        four_set = set(self._signal_patterns[2])
+
         for sp in self._signal_patterns[3:6]:  # length 5
-            if set(self._signal_patterns[0]).issubset(set(sp)):
+            if one_set.issubset(set(sp)):
                 lookups[sp] = 3
-            elif len(set(sp) & set(self._signal_patterns[2])) == 2:
+            elif len(set(sp) & four_set) == 2:
                 lookups[sp] = 2
             else:
                 lookups[sp] = 5
 
         for sp in self._signal_patterns[6:9]:
-            if set(self._signal_patterns[2]).issubset(sp):
+            if four_set.issubset(sp):
                 lookups[sp] = 9
-            elif set(self._signal_patterns[0]).issubset(sp):
+            elif one_set.issubset(sp):
                 lookups[sp] = 0
             else:
                 lookups[sp] = 6
