@@ -38,7 +38,5 @@ def solution(day, lines):
     se_score = sum(map(syntax_error_score, lines))
     print(f'Total syntax error score: {se_score}')
 
-    ac_scores = [autocomplete_score(l) for l in lines]
-    ac_scores = filter(lambda n : n is not None, ac_scores)
-    median_ac_score = median(ac_scores)
+    median_ac_score = median(filter(lambda n : n, map(autocomplete_score, lines)))
     print(f'Median autocomplete score: {median_ac_score}')
