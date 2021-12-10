@@ -33,7 +33,7 @@ def autocomplete_score(line):
 
 
 def solution(day, lines):
-    lines = [l.strip() for l in lines]
+    lines = list(map(str.strip, lines))
 
     se_score = sum(map(syntax_error_score, lines))
     print(f'Total syntax error score: {se_score}')
