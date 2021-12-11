@@ -1,6 +1,3 @@
-NUM_STEPS = 100
-
-
 def solution(day, lines):
     energy_levels = [[int(c) for c in l.strip()] for l in lines]
     nrows = len(energy_levels)
@@ -15,8 +12,8 @@ def solution(day, lines):
     num_steps = 0
     num_flashes = 0
     while True:
-        if num_steps == NUM_STEPS:
-            print(f'Number of flashes after {NUM_STEPS} steps: {num_flashes}')
+        if num_steps == 100:
+            print(f'Number of flashes after 100 steps: {num_flashes}')
 
         # First each octopus increases its energy level by 1.
         for row in energy_levels:
@@ -41,6 +38,9 @@ def solution(day, lines):
                         new_flashes_this_substep = True
                         for (x,y) in neighbors(i,j):
                             energy_levels[x][y] += 1
+
+        # Finally, any octopus that flashed during this step has its energy set
+        # to 0, as it used all of its energy to flash.
         for (i,j) in flashed_this_step:
             energy_levels[i][j] = 0
         num_flashes += len(flashed_this_step)
