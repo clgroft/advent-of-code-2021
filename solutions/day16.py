@@ -1,5 +1,4 @@
-from functools import reduce
-from operator import mul
+from math import prod
 
 
 class Packet:
@@ -90,7 +89,7 @@ class OperatorPacket(Packet):
         if self.type_id == 0:
             return sum(p.get_value() for p in self.subpackets)
         if self.type_id == 1:
-            return reduce(mul, (p.get_value() for p in self.subpackets))
+            return prod(p.get_value() for p in self.subpackets)
         if self.type_id == 2:
             return min(p.get_value() for p in self.subpackets)
         if self.type_id == 3:
