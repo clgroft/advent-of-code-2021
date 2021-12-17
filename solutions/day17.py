@@ -14,9 +14,8 @@ def solution(day, lines):
     init_velocities = set()
     for init_vx in range(0, xmax+1):
         for init_vy in range(ymin, -ymin + 1):
-            t, x, y, vx, vy = 0, 0, 0, init_vx, init_vy
+            x, y, vx, vy = 0, 0, init_vx, init_vy
             while y >= ymin:
-                t += 1
                 x += vx
                 y += vy
                 vx -= 1 if vx > 0 else 0
