@@ -22,7 +22,7 @@ class SnailNumber:
     @classmethod
     def _parse(cls, line):
         m = cls.NUMBER_PATTERN.match(line)
-        if m:  # regular number
+        if m:
             return RegularNumber(int(m.group(1))), m.group(2)
         if line[0] != '[': raise ParseException()
         left, line = cls._parse(line[1:])
