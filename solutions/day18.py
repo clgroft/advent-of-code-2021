@@ -35,9 +35,13 @@ class SnailNumber:
         num = PairNumber(self, o)
         reduced = True
         while reduced:
-            _, num, _, reduced = num.explode(4)
-            if not reduced:
-                num, reduced = num.split()
+            # Since exploding a node doesn't change the shape of the tree
+            # (aside from that one node becoming a leaf), we can execute all
+            # explosions in a single pass and then look for the first split.
+            # However, a split can result in a number which needs to be exploded
+            # again.
+            _, num, _ = num.explode(4)
+            num, reduced = num.split()
         return num
 
 
@@ -50,7 +54,7 @@ class RegularNumber(SnailNumber):
         return str(self.value)
 
     def explode(self, depth):
-        return None, self, None, False  # Can't explode a regular number
+        return None, self, None  # Can't explode a regular number
 
     def split(self):
         if self.value < 10:
@@ -80,27 +84,24 @@ class PairNumber(SnailNumber):
 
     def explode(self, depth):
         if depth == 0:
-            return self.left.value, RegularNumber(0), self.right.value, True
+            return self.left.value, RegularNumber(0), self.right.value
 
-        left_add_left, new_left, left_add_right, exploded = (
-            self.left.explode(depth-1))
+        left_add_left, new_left, left_add_right = self.left.explode(depth-1)
         if left_add_right is not None:
             new_right = self.right.add_leftmost(left_add_right)
         else:
             new_right = self.right
-        if exploded:
-            return left_add_left, PairNumber(new_left, new_right), None, True
 
-        right_add_left, new_right, right_add_right, exploded = (
-            self.right.explode(depth-1))
+        right_add_left, new_right, right_add_right = new_right.explode(depth-1)
         if right_add_left is not None:
-            new_left = self.left.add_rightmost(right_add_left)
+            new_left = new_left.add_rightmost(right_add_left)
         else:
-            new_left = self.left
-        if exploded:
-            return None, PairNumber(new_left, new_right), right_add_right, True
+            new_left = new_left
 
-        return None, self, None, False
+        if new_left is self.left and new_right is self.right:
+            return None, self, None
+
+        return left_add_left, PairNumber(new_left, new_right), right_add_right
 
     def split(self):
         new_left, split_left = self.left.split()
