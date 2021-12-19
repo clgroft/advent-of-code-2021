@@ -1,4 +1,5 @@
 from collections import Counter
+from functools import reduce
 import numpy as np
 import re
 
@@ -53,7 +54,7 @@ def solution(day, lines):
                     found_match = True
                     placed_scans[i] = result
                     unplaced_scan_indices.remove(i)
-                    print(f'Placed scan {i}')
+                    print(f'Placed scan {i}: location is {result.position}')
                     break
                 else:
                     failed_matches.add((i,j))
@@ -61,6 +62,15 @@ def solution(day, lines):
             print(f'Failed to find match')
             return
     print(f'Placed all scans!')
+    all_beacons = reduce(set.union, map(lambda ps: ps.beacons, placed_scans.values()))
+    print(f'Found {len(all_beacons)} beacons')
+    max_manhattan_distance = 0
+    for ps1 in placed_scans.values():
+        for ps2 in placed_scans.values():
+            distance = sum(abs(ps1.position - ps2.position))
+            if distance > max_manhattan_distance:
+                max_manhattan_distance = distance
+    print(f'Max Manhattan distance: {max_manhattan_distance}')
 
 
 def scans(lines):
@@ -103,7 +113,7 @@ def try_to_fit_rotated(rotated_beacon_set, ps):
     for s, cnt in potential_shifts.items():
         if cnt >= 12:
             s = np.array(s)
-            return PlacedScan(s + ps.position, shift(rotated_beacon_set, -s))
+            return PlacedScan(s, shift(rotated_beacon_set, s))
     return None
 
 
