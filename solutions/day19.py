@@ -7,7 +7,6 @@ import re
 HEADER_LINE = re.compile('^--- scanner (\d+) ---$')
 BEACON_LINE = re.compile('^(-?\d+),(-?\d+),(-?\d+)$')
 
-
 ROTATIONS = list(map(np.array,
                 [
                     [[1,0,0],[0,1,0],[0,0,1]], [[1,0,0],[0,-1,0],[0,0,-1]],
@@ -62,8 +61,10 @@ def solution(day, lines):
             print(f'Failed to find match')
             return
     print(f'Placed all scans!')
+
     all_beacons = reduce(set.union, map(lambda ps: ps.beacons, placed_scans.values()))
     print(f'Found {len(all_beacons)} beacons')
+
     max_manhattan_distance = 0
     for ps1 in placed_scans.values():
         for ps2 in placed_scans.values():
@@ -107,9 +108,6 @@ def try_to_fit_rotated(rotated_beacon_set, ps):
     for b1 in rotated_beacon_set:
         for b2 in ps.beacons:
             potential_shifts[tuple(b2-b1)] += 1
-            # shifted_beacon_set = shift(rotated_beacon_set, b2 - b1)
-            # if len(shifted_beacon_set & ps.beacons) >= 12:
-            #     return PlacedScan(b1 - b2 + ps.position, shifted_beacon_set)
     for s, cnt in potential_shifts.items():
         if cnt >= 12:
             s = np.array(s)
