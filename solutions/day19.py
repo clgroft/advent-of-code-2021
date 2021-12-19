@@ -1,3 +1,4 @@
+from collections import Counter
 import numpy as np
 import re
 
@@ -28,27 +29,87 @@ ROTATIONS = list(map(np.array,
                 ]))
 
 
+class PlacedScan:
+    def __init__(self, position, beacons):
+        self.position = position
+        self.beacons = beacons
+
+
+def solution(day, lines):
+    original_scans = scans(lines)
+    placed_scans = {0: PlacedScan(np.array((0,0,0)), original_scans[0])}
+    unplaced_scan_indices = set(range(1,len(original_scans)))
+    failed_matches = set()
+    while unplaced_scan_indices:
+        found_match = False
+        for i in sorted(unplaced_scan_indices):
+            if found_match:
+                break
+            for j, ps in placed_scans.items():
+                if (i,j) in failed_matches:
+                    continue
+                result = try_to_fit(original_scans[i], ps)
+                if result:
+                    found_match = True
+                    placed_scans[i] = result
+                    unplaced_scan_indices.remove(i)
+                    print(f'Placed scan {i}')
+                    break
+                else:
+                    failed_matches.add((i,j))
+        if not found_match:
+            print(f'Failed to find match')
+            return
+    print(f'Placed all scans!')
+
+
 def scans(lines):
     original_scans = []
     latest_scan = None
     for l in lines:
         m = HEADER_LINE.match(l)
         if m:
-            latest_scan = []
+            latest_scan = set()
             continue
         m = BEACON_LINE.match(l)
         if m:
-            latest_scan.append((int(m.group(1)), int(m.group(2)), int(m.group(3))))
+            latest_scan.add((int(m.group(1)), int(m.group(2)), int(m.group(3))))
             continue
         # presumably blank line
         original_scans.append(latest_scan)
         latest_scan = None
     if latest_scan is not None:
         original_scans.append(latest_scan)
-    return list(map(np.array, original_scans))
+    return original_scans
 
 
-def solution(day, lines):
-    original_scans = scans(lines)
-    placed_scans = {0: original_scans[0]}
-    unplaced_scans = list(range(1,len(original_scans)))
+def try_to_fit(unrotated_beacon_set, ps):
+    for r in ROTATIONS:
+        rotated_beacon_set = rotate(r, unrotated_beacon_set)
+        result = try_to_fit_rotated(rotated_beacon_set, ps)
+        if result:
+            return result
+    return None
+
+
+def try_to_fit_rotated(rotated_beacon_set, ps):
+    potential_shifts = Counter()
+    for b1 in rotated_beacon_set:
+        for b2 in ps.beacons:
+            potential_shifts[tuple(b2-b1)] += 1
+            # shifted_beacon_set = shift(rotated_beacon_set, b2 - b1)
+            # if len(shifted_beacon_set & ps.beacons) >= 12:
+            #     return PlacedScan(b1 - b2 + ps.position, shifted_beacon_set)
+    for s, cnt in potential_shifts.items():
+        if cnt >= 12:
+            s = np.array(s)
+            return PlacedScan(s + ps.position, shift(rotated_beacon_set, -s))
+    return None
+
+
+def rotate(r, unrotated_beacon_set):
+    return list(np.matmul(r, b) for b in unrotated_beacon_set)
+
+
+def shift(rotated_beacon_set, vec):
+    return set(tuple(b + vec) for b in rotated_beacon_set)
