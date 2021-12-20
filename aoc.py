@@ -6,7 +6,7 @@ import sys
 
 from solutions import (day01, day02, day03, day04, day05, day06, day07, day08,
                        day09, day10, day11, day12, day13, day14, day15, day16,
-                       day17, day18, day19)
+                       day17, day18, day19, day20)
 
 
 solutions = defaultdict(lambda : lambda day, lines : print(f"Day {day} not yet implemented"))
@@ -29,6 +29,7 @@ solutions[16] = day16.solution
 solutions[17] = day17.solution
 solutions[18] = day18.solution
 solutions[19] = day19.solution
+solutions[20] = day20.solution
 
 
 @click.command()
