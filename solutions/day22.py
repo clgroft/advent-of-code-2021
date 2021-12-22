@@ -17,17 +17,20 @@ def solution(day, lines):
             int(m.group(4)), int(m.group(5)) + 1,
             int(m.group(6)), int(m.group(7)) + 1
         )
+
         if (not seen_outside_rectangle and
             (xmin < -50 or xmax > 51 or ymin < -50 or ymax > 51 or
              zmin < -50 or zmax > 51)):
                 volume = sum(o.volume() for o in overlaps)
                 print(f'Total volume in small region: {volume}')
                 seen_outside_rectangle = True
+
         rect = Rectangle(xmin, xmax, ymin, ymax, zmin, zmax)
         for o in overlaps:
             o.add_overlapping_rectangle(rect)
         if on_or_off == 'on':
             overlaps.append(Overlap(rect))
+
     volume = sum(o.volume() for o in overlaps)
     print(f'Total volume: {volume}')
 
@@ -48,7 +51,7 @@ class Rectangle:
         facilitate volume calculation.
 
         If self and other do not overlap, returns None. This keeps the
-        collections of overlapping rectangles from getting unweildy."""
+        collections of overlapping rectangles from getting unwieldy."""
         xmin = max(self._xmin, other._xmin)
         xmax = min(self._xmax, other._xmax)
         ymin = max(self._ymin, other._ymin)
