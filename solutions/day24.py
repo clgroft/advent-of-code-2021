@@ -2,10 +2,64 @@
 
 
 import re
-from typing import Dict, List, Set, Tuple
+import sympy as sp
 
 
 INDEXES = {'w': 0, 'x': 1, 'y': 2, 'z': 3}
+INPUT_CTR = 0
+INPUT_VARS = {
+    0: 2,
+    1: 7,
+    2: 1,
+    3: 4,
+    4: 1,
+    5: 1,
+    6: 9,
+    7: 1,
+    8: 2,
+    9: 1,
+    10: 3,
+    11: 9,
+    12: 1,
+    13: 1,
+}
+
+EQL_CTR = 0
+EQL_VARS = {
+    # After getting symbolic expressions for some of the equality expressions,
+    # it becomes clear that many of them have specific values that sympy cannot
+    # calculate.  Those values are stored here.
+    0: 0,
+    1: 1,
+    2: 0,
+    3: 1,
+    4: 0,
+    5: 1,
+    8: 0,
+    9: 1,
+    10: 0,
+    11: 1,
+    12: 0,
+    13: 1,
+    18: 0,
+    19: 1,
+
+    # Vary these as part of narrowing down number
+    # 6: 1,
+    7: 0,
+    # 14: 1,
+    15: 0,
+    # 16: 1,
+    17: 0,
+    # 20: 1,
+    21: 0,
+    # 22: 0,
+    23: 0,
+    # 24: 0,
+    25: 0,
+    # 26: 1,
+    27: 0, # this HAS to be true for any solution
+}
 
 
 class ParseException(Exception): pass
@@ -20,14 +74,16 @@ class InputInstruction(Instruction):
         super().__init__()
         self._var = INDEXES[var]
 
-    def apply(self, states):
-        new_states = []
-        for state, model_no in states:
-            for i in range(9, 0, -1):
-                s = list(state)
-                s[self._var] = i
-                new_states.append((tuple(s), model_no + str(i)))
-        return new_states
+    def apply(self, state):
+        global INPUT_CTR, INPUT_VARS
+        fixed_input = INPUT_VARS.get(INPUT_CTR)
+        if fixed_input is not None:
+            state[self._var] = fixed_input
+        else:
+            new_symbol = sp.Symbol(f'i_{INPUT_CTR}', integer=True)
+            state[self._var] = new_symbol
+            print(f'{new_symbol} ranges from 1 to 9')
+        INPUT_CTR += 1
 
 
 class ConstantInstruction(Instruction):
@@ -44,72 +100,76 @@ class VariableInstruction(Instruction):
 
 class AddConstantInstruction(ConstantInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var] += self._const
-        return tuple(s)
+        state[self._var] += self._const
+        # state[self._var] = sp.simplify(state[self._var])
 
 
 class AddVariableInstruction(VariableInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var1] += state[self._var2]
-        return tuple(s)
+        state[self._var1] += state[self._var2]
+        # state[self._var1] = sp.simplify(state[self._var1])
 
 
 class MulConstantInstruction(ConstantInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var] *= self._const
-        return tuple(s)
+        state[self._var] *= self._const
+        # state[self._var] = sp.simplify(state[self._var])
 
 
 class MulVariableInstruction(VariableInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var1] *= state[self._var2]
-        return tuple(s)
+        state[self._var1] *= state[self._var2]
+        # state[self._var1] = sp.simplify(state[self._var1])
 
 
 class DivConstantInstruction(ConstantInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var] //= self._const
-        return tuple(s)
+        state[self._var] //= self._const
+        # state[self._var] = sp.simplify(state[self._var])
 
 
 class DivVariableInstruction(VariableInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var1] //= state[self._var2]
-        return tuple(s)
+        state[self._var1] //= state[self._var2]
+        # state[self._var1] = sp.simplify(state[self._var1])
 
 
 class ModConstantInstruction(ConstantInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var] %= self._const
-        return tuple(s)
+        state[self._var] %= self._const
+        # state[self._var] = sp.simplify(state[self._var])
 
 
 class ModVariableInstruction(VariableInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var1] %= state[self._var2]
-        return tuple(s)
+        state[self._var1] %= state[self._var2]
+        # state[self._var1] = sp.simplify(state[self._var1])
 
 
 class EqlConstantInstruction(ConstantInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var] = 1 if state[self._var] == self._const else 0
-        return tuple(s)
+        global EQL_CTR, EQL_VARS
+        fixed_result = EQL_VARS.get(EQL_CTR)
+        if fixed_result is not None:
+            state[self._var] = fixed_result
+        else:
+            new_symbol = sp.Symbol(f'v_{EQL_CTR}', integer=True)
+            print(f'{new_symbol} is 1 if {state[self._var]} = {self._const}, o.w. 0')
+            state[self._var] = new_symbol
+        EQL_CTR += 1
 
 
 class EqlVariableInstruction(VariableInstruction):
     def apply(self, state):
-        s = list(state)
-        s[self._var1] = 1 if state[self._var1] == state[self._var2] else 0
-        return tuple(s)
+        global EQL_CTR, EQL_VARS
+        fixed_result = EQL_VARS.get(EQL_CTR)
+        if fixed_result is not None:
+            state[self._var1] = fixed_result
+        else:
+            new_symbol = sp.Symbol(f'v_{EQL_CTR}', integer=True)
+            print(f'{new_symbol} is 1 if {state[self._var1]} = {state[self._var2]}, o.w. 0')
+            state[self._var1] = new_symbol
+        EQL_CTR += 1
 
 
 INPUT_RE = re.compile('^inp (.)$')
@@ -144,32 +204,9 @@ def parseInstruction(line):
     raise ParseException()
 
 
-def applyInstructionsToModelNumbers(
-        instructions: List[Instruction],
-        states: List[Tuple[Tuple[int, int, int, int], str]]):
-    for instr in instructions:
-        if isinstance(instr, InputInstruction):
-            states = instr.apply(states)
-            print(f'Expanded to {len(states)} states')
-        else:
-            states = [(instr.apply(s), model_no) for s, model_no in states]
-            # Now collapse identical states together
-            collapsed_states : List[Tuple[Tuple[int, int, int, int], str]] = []
-            existing_states : Set[Tuple[int, int, int, int]] = set()
-            for state, model_no in states:
-                if state not in existing_states:
-                    existing_states.add(state)
-                    collapsed_states.append((state, model_no))
-            # if len(collapsed_states) < len(states):
-            print(f'Collapsed {len(states)} to {len(collapsed_states)}')
-            states = collapsed_states
-    return max(model_no for state, model_no in states if state[3] == 0)
-
-
 def solution(day, lines):
     instructions = list(map(parseInstruction, lines))
-    model_no = applyInstructionsToModelNumbers(instructions, [((0,0,0,0), '')])
-    if model_no:
-        print(f'Model number: {result}')
-    else:
-        print(f'No model number found')
+    state = [0,0,0,0]
+    for instr in instructions:
+        instr.apply(state)
+    print(f'Want {state[INDEXES["z"]]} = 0')

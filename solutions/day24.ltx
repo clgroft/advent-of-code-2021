@@ -1,0 +1,65 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Day 24 Solutions}
+\author{Chad Groft}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+%\section{}
+%\subsection{}
+
+\section{Initial constraints}
+\begin{itemize}
+\item $i_0$, \dots, $i_{13}$ range from 1 to 9.
+\item $v_0=1$ if $13=i_0$, 0 otherwise (so $v_0=0$).
+\item $v_1=1$ if $v_0=0$, 0 otherwise (so $v_1=1$).
+\item $v_2=1$ if $i_0\bmod 26 + 11 = i_0 + 11 = i_1$, 0 otherwise (so $v_2=0$).
+\item $v_3=1$ if $v_2=0$, 0 otherwise (so $v_3=1$).
+\item $v_4=1$ if $(i_1+3)\bmod 26 + 14 = i_1+17 = i_2$, 0 otherwise (so $v_4=0$).
+\item $v_5=1$ if $v_4=0$, 0 otherwise (so $v_5=1$).
+\item $v_6=1$ if $(i_2+8)\bmod 26 - 5=i_2+3=i_3$, 0 otherwise (so unclear).
+\item $v_7=1$ if $v_6=0$, 0 otherwise (so unclear).
+\item $v_8=1$ if $(\textrm{complex expression} \bmod 26) + 14 = i_4$, 0 otherwise (so $v_8=0$).
+\item $v_9=1$ if $v_8=0$, 0 otherwise (so $v_9=1$).
+\item $v_{10}=1$ if $(i_4+13)\bmod 26 + 10 = i_5$, 0 otherwise (so $v_{10}=0$).
+\item $v_{11}=1$ if $v_{10}=0$ (so $v_{11}=1$).
+\item $v_{12}=1$ if $(i_5+9)\bmod 26+12=i_6$, 0 otherwise (so $v_{12}=0$).
+\item $v_{13}=1$ if $v_{12}=0$ (so $v_{13}=1$).
+\item $v_{14}=1$ if $(i_6+6)\bmod 26-14=i_6-8=i_7$, 0 otherwise (so unclear).
+\item $v_{15}=1$ if $v_{14}=0$, 0 otherwise (so unclear).
+\item $v_{16}=1$ if
+\begin{align*}
+  \Bigl(v_{15}(i_7+1) + (25v_{15}+1) 
+   \Bigl(&26i_4 + i_5 + 26^2 v_7(i_3+5) \\
+    &+26^2(25v_7+1)(\textrm{expr})+\Bigl\lfloor\frac{i_6}{26}+\frac{43}{13}\Bigr\rfloor\Bigr)\Bigr)\bmod 26 - 8 = i_8,
+\end{align*}
+which reduces to
+\[
+  \bigl(v_{15}(i_7+1) +(25v_{15}+1)(i_5+3)\bigr)\bmod 26 - 8 = i_8,
+\]
+which is so far unclear.
+\item $v_{17}=1$ if $v_{16}=0$, 0 otherwise, so unclear.
+\item $v_{18}=1$ if $(\textrm{complicated expression})\bmod 26 +13 = i_9$, 0 otherwise, so $v_{18}=0$.
+\item $v_{19}=1$ if $v_{18}=0$, so $v_{19}=1$.
+\item $v_{20}=1$ if $i_9+2=i_10$, 0 otherwise, so unclear.
+\item $v_{21}=1$ if $v_{20}=0$, 0 otherwise, so unclear.
+\item $v_{22}=1$ through $v_{27}$ are all determined by complicated expressions.
+\end{itemize}
+
+\section{Constraints from the tail end}
+
+We want $v_{27}(i_{13} + 15) + (25v_{27} + 1)(\textrm{complex nonnegative expression}) = 0$. We must therefore have $v_{27}=0$ and $v_{26}=1$. (We will figure out how to do this later.)
+
+From here the constraints are too complex to approach directly. Instead (after some brute-force exploration) I guessed that $v_{2n}=1$ and $v_{2n+1}=0$ for all $n$ where these were not yet determined. This gave several equations relating the digits which were easy to satisfy with a greedy search.
+
+
+\end{document}  
