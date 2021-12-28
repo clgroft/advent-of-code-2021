@@ -36,28 +36,25 @@ class Packet:
                 )
                 literal_bits += value_bits
             literal = int(literal_bits, 2)
-            packet = LiteralPacket(version, literal)
             return LiteralPacket(version, literal), bin_line
 
         # operator packet
         length_type_bit, bin_line = bin_line[0], bin_line[1:]
+        subpackets = []
         if length_type_bit == '0':
             length_bits, bin_line = bin_line[:15], bin_line[15:]
             length = int(length_bits, 2)
             subpackets_bits, bin_line = bin_line[:length], bin_line[length:]
-            subpackets = []
             while subpackets_bits:
                 subpacket, subpackets_bits = cls._parse(subpackets_bits)
                 subpackets.append(subpacket)
-            return OperatorPacket(version, type_id, subpackets), bin_line
         else:
             num_subpackets_bits, bin_line = bin_line[:11], bin_line[11:]
             num_subpackets = int(num_subpackets_bits, 2)
-            subpackets = []
             for _ in range(num_subpackets):
                 subpacket, bin_line = cls._parse(bin_line)
                 subpackets.append(subpacket)
-            return OperatorPacket(version, type_id, subpackets), bin_line
+        return OperatorPacket(version, type_id, subpackets), bin_line
 
 
 class LiteralPacket(Packet):
