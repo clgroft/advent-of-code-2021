@@ -4,12 +4,12 @@ import re
 def solution(day, lines):
     input_re = re.compile(
         r"(on|off) x=(-?\d+)\.\.(-?\d+),y=(-?\d+)\.\.(-?\d+),z=(-?\d+)\.\.(-?\d+)")
-    overlaps = []
+    regions = []
     seen_outside_rectangle = False
-    for i, line in enumerate(lines):
+    for line in lines:
         m = input_re.match(line)
         if not m:
-            print(f'Failed to parse line {i+1}')
+            print(f'Failed to parse')
             break
         on_or_off, xmin, xmax, ymin, ymax, zmin, zmax = (
             m.group(1),
@@ -21,33 +21,33 @@ def solution(day, lines):
         if (not seen_outside_rectangle and
             (xmin < -50 or xmax > 51 or ymin < -50 or ymax > 51 or
              zmin < -50 or zmax > 51)):
-                volume = sum(o.volume() for o in overlaps)
+                volume = sum(r.volume() for r in regions)
                 print(f'Total volume in small region: {volume}')
                 seen_outside_rectangle = True
 
         rect = Rectangle(xmin, xmax, ymin, ymax, zmin, zmax)
-        for o in overlaps:
-            o.add_overlapping_rectangle(rect)
+        for r in regions:
+            r.remove_rectangle(rect)
         if on_or_off == 'on':
-            overlaps.append(Overlap(rect))
+            regions.append(Region(rect))
 
-    volume = sum(o.volume() for o in overlaps)
+    volume = sum(o.volume() for o in regions)
     print(f'Total volume: {volume}')
 
 
 class Rectangle:
     """Represents a 3-dimensional rectangle and whether the cuboids in it should
     be taken as lit or unlit."""
-    def __init__(self, xmin, xmax, ymin, ymax, zmin, zmax, is_on=True):
+    def __init__(self, xmin, xmax, ymin, ymax, zmin, zmax, is_lit=True):
         self._xmin, self._xmax = xmin, xmax
         self._ymin, self._ymax = ymin, ymax
         self._zmin, self._zmax = zmin, zmax
-        self.is_on = is_on
+        self.is_lit = is_lit
 
     def intersect(self, other):
         """Returns the intersection of self and other as a Rectangle.
 
-        The intersection is taken as off if self is on and vice versa, to
+        The intersection is taken as unlit if self is lit and vice versa, to
         facilitate volume calculation.
 
         If self and other do not overlap, returns None. This keeps the
@@ -60,7 +60,7 @@ class Rectangle:
         zmax = min(self._zmax, other._zmax)
         if xmin >= xmax or ymin >= ymax or zmin >= zmax:
             return None
-        return Rectangle(xmin, xmax, ymin, ymax, zmin, zmax, not self.is_on)
+        return Rectangle(xmin, xmax, ymin, ymax, zmin, zmax, not self.is_lit)
 
     def volume(self):
         """Returns the total volume of self."""
@@ -69,15 +69,15 @@ class Rectangle:
                 (self._zmax - self._zmin))
 
 
-class Overlap:
+class Region:
     """Represents the part of a Rectangle that is visible through any
-    overlapping rectangles.  Allows calculation of visible volume throgh the
+    overlapping rectangles.  Allows calculation of visible volume through the
     inclusion-exclusion rule."""
     def __init__(self, initial_rectangle):
         self._rectangles = [initial_rectangle]
 
-    def add_overlapping_rectangle(self, rect):
-        """Add a new Rectangle which may occlude on the initial Rectangle."""
+    def remove_rectangle(self, rect):
+        """Remove a new Rectangle which may occlude on the initial Rectangle."""
         overlap = self._rectangles[0].intersect(rect)
         if overlap is None:
             return
@@ -92,11 +92,5 @@ class Overlap:
 
     def volume(self):
         """Returns the volume of the initial rectangle which is not occluded."""
-        total_volume = 0
-        for r in self._rectangles:
-            v = r.volume()
-            if r.is_on:
-                total_volume += v
-            else:
-                total_volume -= v
-        return total_volume
+        return sum(r.volume() if r.is_lit else -r.volume()
+                   for r in self._rectangles)
