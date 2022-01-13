@@ -6,7 +6,7 @@ import re
 
 
 def solution(day, lines):
-    interim_solution = InterimSolution(scans(lines))
+    interim_solution = Solution(scans(lines))
     if not interim_solution.find_matches():
         return
     print(f'Found {interim_solution.num_beacons()} beacons')
@@ -39,12 +39,13 @@ def scans(lines):
     return original_scans
 
 
-class InterimSolution:
+class Solution:
     def __init__(self, original_scans):
-        self._original_scans = original_scans
         self._placed_scans = {0: PlacedScan(np.array((0,0,0)), original_scans[0])}
         self._unplaced_scan_indices = set(range(1, len(original_scans)))
         self._failed_matches = set()
+        self._all_rotated_scans = [[rotate(r, os) for r in ROTATIONS]
+                                   for os in original_scans]
 
     def find_matches(self):
         while self._unplaced_scan_indices:
@@ -54,7 +55,8 @@ class InterimSolution:
 
     def num_beacons(self):
         return len(reduce(set.union,
-                          map(lambda ps: ps.beacons, self._placed_scans.values())))
+                          map(lambda ps: ps.beacons,
+                              self._placed_scans.values())))
 
     def max_manhattan_distance(self):
         return max(sum(abs(ps1.position - ps2.position))
@@ -62,12 +64,11 @@ class InterimSolution:
                    for ps2 in self._placed_scans.values())
 
     def _find_single_match(self):
-        for i in sorted(self._unplaced_scan_indices):
-            original_scan = self._original_scans[i]
+        for i in self._unplaced_scan_indices:
             for j, placed_scan in self._placed_scans.items():
                 if (i,j) in self._failed_matches:
                     continue
-                result = try_to_fit(original_scan, placed_scan)
+                result = self._try_to_fit(i, placed_scan)
                 if result:
                     self._placed_scans[i] = result
                     self._unplaced_scan_indices.remove(i)
@@ -78,6 +79,13 @@ class InterimSolution:
         print('Failed to find match')
         return False
 
+    def _try_to_fit(self, i, placed_scan):
+        for rotated_beacon_set in self._all_rotated_scans[i]:
+            result = try_to_fit_rotated(rotated_beacon_set, placed_scan)
+            if result:
+                return result
+        return None
+
 
 @dataclass
 class PlacedScan:
@@ -85,21 +93,10 @@ class PlacedScan:
     beacons: set(tuple([int, int, int]))
 
 
-def try_to_fit(unrotated_beacon_set, ps):
-    for r in ROTATIONS:
-        rotated_beacon_set = rotate(r, unrotated_beacon_set)
-        result = try_to_fit_rotated(rotated_beacon_set, ps)
-        if result:
-            return result
-    return None
-
-
 def try_to_fit_rotated(rotated_beacon_set, ps):
-    potential_shifts = Counter()
-    for b1 in rotated_beacon_set:
-        for b2 in ps.beacons:
-            potential_shifts[tuple(b2-b1)] += 1
-    s, cnt = potential_shifts.most_common(1)[0]
+    s, cnt = Counter(tuple(b2-b1)
+                     for b1 in rotated_beacon_set
+                     for b2 in ps.beacons).most_common(1)[0]
     if cnt >= 12:
         s = np.array(s)
         return PlacedScan(s, shift(rotated_beacon_set, s))
