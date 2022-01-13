@@ -10,11 +10,10 @@ def solution(day, lines):
     product = play_game(position_1, position_2)
     print(f'Product: {product}')
 
-    possible_die_rolls = Counter()
-    for i in range(1,4):
-        for j in range(1,4):
-            for k in range(1,4):
-                possible_die_rolls[i+j+k] += 1
+    possible_die_rolls = Counter(i + j + k
+                                 for i in range(1, 4)
+                                 for j in range(1, 4)
+                                 for k in range(1, 4))
     universes = Counter()
     universes[(position_1, position_2, 0, 0)] = 1
     max_universes = play_quantum_game(possible_die_rolls, universes)
