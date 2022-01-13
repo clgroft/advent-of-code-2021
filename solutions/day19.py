@@ -13,29 +13,24 @@ def solution(day, lines):
 
 
 def scans(lines):
-    original_scans = []
-    latest_scan = None
-    header_line = re.compile('^--- scanner (\d+) ---$')
+    def paragraphs():
+        paragraph = []
+        for l in lines:
+            if l.strip():
+                paragraph.append(l)
+            else:
+                yield paragraph
+                paragraph = []
+        if paragraph:
+            yield paragraph
+
     beacon_line = re.compile('^(-?\d+),(-?\d+),(-?\d+)$')
+    def scan(paragraph):
+        return set(
+            (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+            for m in (beacon_line.match(l) for l in paragraph[1:]))
 
-    for l in lines:
-        m = header_line.match(l)
-        if m:
-            latest_scan = set()
-            continue
-
-        m = beacon_line.match(l)
-        if m:
-            latest_scan.add((int(m.group(1)), int(m.group(2)), int(m.group(3))))
-            continue
-
-        # presumably blank line
-        original_scans.append(latest_scan)
-        latest_scan = None
-
-    if latest_scan is not None:
-        original_scans.append(latest_scan)
-    return original_scans
+    return [scan(p) for p in paragraphs()]
 
 
 class Solution:
