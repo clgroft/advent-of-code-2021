@@ -65,7 +65,9 @@ class Solution:
             for j, placed_scan in self._placed_scans.items():
                 if (i,j) in self._failed_matches:
                     continue
-                result = next(self._try_to_fit(i, placed_scan), None)
+                beacon_set_rotations = self._all_rotated_scans[i]
+                result = next(try_to_fit(beacon_set_rotations, placed_scan),
+                              None)
                 if result:
                     self._placed_scans[i] = result
                     self._unplaced_scan_indices.remove(i)
@@ -74,12 +76,6 @@ class Solution:
                 else:
                     self._failed_matches.add((i,j))
         raise MatchNotFoundException()
-
-    def _try_to_fit(self, i, placed_scan):
-        return (result
-                for rotated_beacon_set in self._all_rotated_scans[i]
-                for result in try_to_fit_rotated(rotated_beacon_set,
-                                                 placed_scan))
 
 
 class MatchNotFoundException(Exception):
@@ -90,6 +86,12 @@ class MatchNotFoundException(Exception):
 class PlacedScan:
     position: np.array
     beacons: set(tuple([int, int, int]))
+
+
+def try_to_fit(rotated_beacon_sets, placed_scan):
+    return (result
+            for rotated_beacon_set in rotated_beacon_sets
+            for result in try_to_fit_rotated(rotated_beacon_set, placed_scan))
 
 
 def try_to_fit_rotated(rotated_beacon_set, ps):
