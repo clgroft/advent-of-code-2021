@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import Counter
 
 
 class VentLine:
@@ -41,13 +41,15 @@ class VentLine:
         start_y, end_y = self.start_y, self.end_y
         if start_y > end_y:
             start_y, end_y = end_y, start_y
-        return ((self.start_x, y) for y in range(start_y, end_y + 1))
+        for y in range(start_y, end_y + 1):
+            yield (self.start_x, y)
 
     def _horizontal_line(self):
         start_x, end_x = self.start_x, self.end_x
         if start_x > end_x:
             start_x, end_x = end_x, start_x
-        return ((x, self.start_y) for x in range(start_x, end_x + 1))
+        for x in range(start_x, end_x + 1):
+            yield (x, self.start_y)
 
     def _diagonal_line(self):
         start_x, end_x = self.start_x, self.end_x
@@ -58,27 +60,22 @@ class VentLine:
         if start_y > end_y:
             inc_y = -1
 
-        points, x, y = [], start_x, start_y
+        x, y = start_x, start_y
         while x <= end_x:
-            points.append((x,y))
+            yield (x, y)
             x += 1
             y += inc_y
-        return points
 
 
 def solution(day, lines):
     vent_lines = [VentLine(line) for line in lines]
 
-    covered_points = defaultdict(lambda: 0)
-    for v in vent_lines:
-        for p in v.covered_points_1():
-            covered_points[p] += 1
+    covered_points = Counter(
+        p for v in vent_lines for p in v.covered_points_1())
     num_crossings = sum(1 for v in covered_points.values() if v > 1)
     print(f'Part 1: There are {num_crossings} crossings')
 
-    covered_points = defaultdict(lambda: 0)
-    for v in vent_lines:
-        for p in v.covered_points_2():
-            covered_points[p] += 1
+    covered_points = Counter(
+        p for v in vent_lines for p in v.covered_points_2())
     num_crossings = sum(1 for v in covered_points.values() if v > 1)
     print(f'Part 2: There are {num_crossings} crossings')
