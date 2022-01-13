@@ -1,6 +1,7 @@
 from collections import Counter
 from dataclasses import dataclass
 from functools import reduce
+from itertools import takewhile, dropwhile
 import numpy as np
 import re
 
@@ -9,20 +10,17 @@ def solution(day, lines):
     full_solution = Solution(scans(lines))
     full_solution.compute()
     print(f'Found {full_solution.num_beacons()} beacons')
-    print(f'Max Manhattan distance: {full_solution.max_manhattan_distance()}')
+    print('Max Manhattan distance:',
+          full_solution.max_manhattan_distance())
 
 
 def scans(lines):
     def paragraphs():
-        paragraph = []
-        for l in lines:
-            if l.strip():
-                paragraph.append(l)
-            else:
-                yield paragraph
-                paragraph = []
-        if paragraph:
-            yield paragraph
+        buffer = lines
+        while buffer:
+            yield list(takewhile(str.strip, buffer))
+            buffer = list(dropwhile(lambda l: not l.strip(),
+                                    dropwhile(str.strip, buffer)))
 
     beacon_line = re.compile('^(-?\d+),(-?\d+),(-?\d+)$')
     def scan(paragraph):
@@ -35,7 +33,9 @@ def scans(lines):
 
 class Solution:
     def __init__(self, original_scans):
-        self._placed_scans = {0: PlacedScan(np.array((0,0,0)), original_scans[0])}
+        self._placed_scans = {
+            0: PlacedScan(np.array((0,0,0)), original_scans[0])
+        }
         self._unplaced_scan_indices = set(range(1, len(original_scans)))
         self._failed_matches = set()
         self._all_rotated_scans = [[rotate(r, os) for r in ROTATIONS]
@@ -85,25 +85,25 @@ class PlacedScan:
 
 def try_to_fit(rotated_beacon_sets, placed_scan):
     return (result
-            for rotated_beacon_set in rotated_beacon_sets
-            for result in try_to_fit_rotated(rotated_beacon_set, placed_scan))
+            for beacon_set in rotated_beacon_sets
+            for result in try_to_fit_rotated(beacon_set, placed_scan))
 
 
-def try_to_fit_rotated(rotated_beacon_set, ps):
+def try_to_fit_rotated(beacon_set, ps):
     s, cnt = Counter(tuple(b2-b1)
-                     for b1 in rotated_beacon_set
+                     for b1 in beacon_set
                      for b2 in ps.beacons).most_common(1)[0]
     if cnt >= 12:
         s = np.array(s)
-        yield PlacedScan(s, shift(rotated_beacon_set, s))
+        yield PlacedScan(s, shift(beacon_set, s))
 
 
-def rotate(r, unrotated_beacon_set):
-    return list(np.matmul(r, b) for b in unrotated_beacon_set)
+def rotate(r, beacon_set):
+    return list(np.matmul(r, b) for b in beacon_set)
 
 
-def shift(rotated_beacon_set, vec):
-    return set(tuple(b + vec) for b in rotated_beacon_set)
+def shift(beacon_set, vec):
+    return set(tuple(b + vec) for b in beacon_set)
 
 
 ROTATIONS = list(map(np.array,
