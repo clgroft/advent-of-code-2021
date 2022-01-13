@@ -32,14 +32,12 @@ def error_type_and_score(line):
 
 
 def solution(day, lines):
-    results = list(map(error_type_and_score, map(str.strip, lines)))
+    results = [error_type_and_score(l.strip()) for l in lines]
 
     se_score = sum(
-        map(lambda r : r.score,
-            filter(lambda r : r.error_type == 'corrupted', results)))
+        r.score for r in results if r.error_type == 'corrupted')
     print(f'Total syntax error score: {se_score}')
 
     median_ac_score = median(
-        map(lambda r : r.score,
-            filter(lambda r : r.error_type == 'incomplete', results)))
+        r.score for r in results if r.error_type == 'incomplete')
     print(f'Median autocomplete score: {median_ac_score}')
