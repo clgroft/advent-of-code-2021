@@ -5,9 +5,8 @@ class PolymerRules:
     def __init__(self, lines):
         polymer_template = lines[0].strip()
         self.elements = Counter(polymer_template)
-        self.pairs = Counter()
-        for i in range(len(polymer_template) - 1):
-            self.pairs[polymer_template[i:i+2]] += 1
+        self.pairs = Counter(polymer_template[i:i+2]
+                             for i in range(len(polymer_template) - 1))
         self.new_elements = {}
         self.rules = {}
         for l in lines[2:]:
