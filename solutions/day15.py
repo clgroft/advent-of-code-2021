@@ -60,7 +60,7 @@ class NaiveCavern(Cavern):
     test input that would work with the naive algorithm and real input that
     wouldn't.  Spoiler alert: they did!"""
     def __init__(self, lines, replicate=False):
-        super().__init__(self, lines, replicate)
+        super().__init__(lines, replicate)
 
     def find_all_shortest_paths(self):
         self.shortest_paths = [[None for j in range(self.max_col + 1)]
