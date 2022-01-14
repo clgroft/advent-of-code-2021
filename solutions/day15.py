@@ -9,10 +9,10 @@ class Cavern:
     def __init__(self, lines, replicate=False):
         simple_risk_levels = [[int(c) for c in l.strip()] for l in lines]
         if replicate:
-            self.max_row = len(simple_risk_levels) * 5 - 1
-            self.max_col = len(simple_risk_levels[0]) * 5 - 1
-            self.risk_levels = [[None for _ in range(self.max_col + 1)]
-                                for _ in range(self.max_row + 1)]
+            self._max_row = len(simple_risk_levels) * 5 - 1
+            self._max_col = len(simple_risk_levels[0]) * 5 - 1
+            self._risk_levels = [[None for _ in range(self._max_col + 1)]
+                                for _ in range(self._max_row + 1)]
             for y in range(5):
                 for i in range(len(simple_risk_levels)):
                     ip = len(simple_risk_levels) * y + i
@@ -20,37 +20,35 @@ class Cavern:
                         for j in range(len(simple_risk_levels[0])):
                             jp = len(simple_risk_levels[0]) * x + j
                             risk = (simple_risk_levels[i][j] + y + x) % 9
-                            self.risk_levels[ip][jp] = 9 if risk == 0 else risk
+                            self._risk_levels[ip][jp] = 9 if risk == 0 else risk
         else:
-            self.risk_levels = simple_risk_levels
-            self.max_row = len(self.risk_levels) - 1
-            self.max_col = len(self.risk_levels[0]) - 1
+            self._risk_levels = simple_risk_levels
+            self._max_row = len(self._risk_levels) - 1
+            self._max_col = len(self._risk_levels[0]) - 1
 
     def find_all_shortest_paths(self):
-        self.shortest_paths = [[None for j in range(self.max_col + 1)]
-                               for i in range(self.max_row + 1)]
+        self._shortest_paths = [[None for j in range(self._max_col + 1)]
+                               for i in range(self._max_row + 1)]
         heap = [(0,0,0)]  # cost, row, col
         while heap:
             distance, i, j = heappop(heap)
-            if self.shortest_paths[i][j] is None:
-                self.shortest_paths[i][j] = distance
+            if self._shortest_paths[i][j] is None:
+                self._shortest_paths[i][j] = distance
                 for ip, jp in self._neighbors(i, j):
-                    heappush(heap, (distance + self.risk_levels[ip][jp], ip, jp))
+                    heappush(heap, (distance + self._risk_levels[ip][jp], ip, jp))
 
     def shortest_path_to_bottom_right(self):
-        return self.shortest_paths[self.max_row][self.max_col]
+        return self._shortest_paths[self._max_row][self._max_col]
 
     def _neighbors(self, i, j):
-        neighbors = []
         if i > 0:
-            neighbors.append((i-1,j))
-        if i < self.max_row:
-            neighbors.append((i+1,j))
+            yield (i-1, j)
+        if i < self._max_row:
+            yield (i+1, j)
         if j > 0:
-            neighbors.append((i,j-1))
-        if j < self.max_col:
-            neighbors.append((i,j+1))
-        return neighbors
+            yield (i, j-1)
+        if j < self._max_col:
+            yield (i, j+1)
 
 
 class NaiveCavern(Cavern):
@@ -63,19 +61,19 @@ class NaiveCavern(Cavern):
         super().__init__(lines, replicate)
 
     def find_all_shortest_paths(self):
-        self.shortest_paths = [[None for j in range(self.max_col + 1)]
-                               for i in range(self.max_row + 1)]
-        self.shortest_paths[0][0] = 0
-        for j in range(self.max_col):
-            self.shortest_paths[0][j+1] = (self.shortest_paths[0][j] +
-                                           self.risk_levels[0][j+1])
-        for i in range(self.max_row):
-            self.shortest_paths[i+1][0] = (self.shortest_paths[i][0] +
-                                           self.risk_levels[i+1][0])
-            for j in range(self.max_col):
-                base = min(self.shortest_paths[i+1][j],
-                           self.shortest_paths[i][j+1])
-                self.shortest_paths[i+1][j+1] = base + self.risk_levels[i+1][j+1]
+        self._shortest_paths = [[None for j in range(self._max_col + 1)]
+                                for i in range(self._max_row + 1)]
+        self._shortest_paths[0][0] = 0
+        for j in range(self._max_col):
+            self._shortest_paths[0][j+1] = (self._shortest_paths[0][j] +
+                                            self._risk_levels[0][j+1])
+        for i in range(self._max_row):
+            self._shortest_paths[i+1][0] = (self._shortest_paths[i][0] +
+                                            self._risk_levels[i+1][0])
+            for j in range(self._max_col):
+                base = min(self._shortest_paths[i+1][j],
+                           self._shortest_paths[i][j+1])
+                self._shortest_paths[i+1][j+1] = base + self._risk_levels[i+1][j+1]
 
 
 def solution(day, lines):
